@@ -1,4 +1,18 @@
 /* 像素画视图 */
+.palette-select {
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: var(--radius, 8px);
+  border: 1px solid var(--border);
+  background: var(--bg-3, #2a2a38);
+  color: var(--fg, #eee);
+  font-size: 12.5px;
+  cursor: pointer;
+  outline: none;
+  margin-bottom: var(--sp-2, 8px);
+}
+.palette-select:focus { border-color: var(--accent, #7c6cff); }
+
 .sprite-view {
   display: flex;
   height: 100%;

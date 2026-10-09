@@ -3,15 +3,15 @@
 // 原语清单（薄边界，快路径）：_cls/_pset/_pget/_rectfill/_sget/_sset/_spr/
 // _mget/_mset/_mapdraw/_btn/_print/_time/_sfx/_music
 
-import { PALETTE } from '../js/lib/palette.js';
+import { paletteColors } from '../js/lib/palette.js';
 import { playSfx, startMusic, stopMusic } from '../js/audio/engine.js';
 
-// 预解析调色板为 RGB 字节
-const RGB = PALETTE.map((hex) => [
+// 预解析调色板为 RGB 字节：按项目色板在 createLuaState 内计算
+const hexToRgb = (hex) => [
   parseInt(hex.slice(1, 3), 16),
   parseInt(hex.slice(3, 5), 16),
   parseInt(hex.slice(5, 7), 16),
-]);
+];
 
 const W = 128, H = 128;
 
@@ -43,6 +43,7 @@ export function createLuaState({ project, screen, keys, printCtx, t0 }) {
   const push = (v) => lua.lua_pushinteger(L, v);
 
   const { sprites, map } = project;
+  const colors = paletteColors(project.palette); // 项目调色板（小色板由调用方取模）
 
   reg('_cls', (L2) => {
     screen.fill(opt(1, 0) & 15);
@@ -143,7 +144,7 @@ export function createLuaState({ project, screen, keys, printCtx, t0 }) {
     const s = lua.lua_tojsstring ? lua.lua_tojsstring(L2, 1) : '';
     const x = chk(2), y = chk(3), c = chk(4) & 15;
     if (printCtx) {
-      printCtx.fillStyle = PALETTE[c];
+      printCtx.fillStyle = colors[((c % colors.length) + colors.length) % colors.length];
       printCtx.font = '6px monospace';
       printCtx.textBaseline = 'top';
       printCtx.fillText(s, Math.max(0, Math.min(x, 126)), Math.max(-2, Math.min(y, 122)));
@@ -173,5 +174,3 @@ export function createLuaState({ project, screen, keys, printCtx, t0 }) {
 
   return L;
 }
-
-export { RGB };

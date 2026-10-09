@@ -1,6 +1,6 @@
 // 地图编辑器：128×64 瓦片格，每格引用精灵表中的 8×8 瓦片；瓦片从精灵表挑选。
 import { setTile, cellIndex, cellOrigin } from '../lib/pixel-data.js';
-import { PALETTE } from '../lib/palette.js';
+import { paletteColorAt } from '../lib/palette.js';
 import { el, makeScope, clearNode } from '../core/dom.js';
 import { toast } from '../core/toast.js';
 
@@ -89,7 +89,7 @@ export function mount(host, { store }) {
       for (let x = 0; x < 128; x++) {
         const c = sprites[y * 128 + x];
         if (c !== 0) {
-          scctx.fillStyle = PALETTE[c];
+          scctx.fillStyle = paletteColorAt(store.project.palette, c);
           scctx.fillRect(x, y, 1, 1);
         }
       }
@@ -103,7 +103,7 @@ export function mount(host, { store }) {
       for (let x = 0; x < 128; x++) {
         const c = sprites[y * 128 + x];
         if (c !== 0) {
-          pctx.fillStyle = PALETTE[c];
+          pctx.fillStyle = paletteColorAt(store.project.palette, c);
           pctx.fillRect(x, y, 1, 1);
         }
       }

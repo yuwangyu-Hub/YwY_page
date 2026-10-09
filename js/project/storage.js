@@ -12,6 +12,7 @@ export function saveProject(project) {
       map: bytesToBase64(project.map),
       sfx: project.sfx || null,   // 小对象，直接 JSON
       music: project.music || null,
+      palette: project.palette || 'pico8',
     };
     sessionStorage.setItem(KEY, JSON.stringify(data));
     return true;
@@ -34,6 +35,7 @@ export function loadProject() {
       version: 1, code: d.code, sprites, map,
       sfx: d.sfx || null,
       music: d.music || null,
+      palette: typeof d.palette === 'string' ? d.palette : 'pico8',
     };
   } catch (e) {
     console.warn('读取存档失败', e);

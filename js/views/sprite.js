@@ -1,7 +1,7 @@
 // 像素画编辑器：精灵表 128×128（256 个 8×8 单元），六工具 + 16 色调色板 + 快照撤销。
 import { getPixel, setPixel, floodFill, cellIndex, cellOrigin } from '../lib/pixel-data.js';
 import { line as drawLine, rect as drawRect } from '../lib/draw.js';
-import { PALETTE } from '../lib/palette.js';
+import { PALETTES, DEFAULT_PALETTE, paletteColors, paletteColorAt } from '../lib/palette.js';
 import { el, makeScope, clearNode } from '../core/dom.js';
 import { toast } from '../core/toast.js';
 
@@ -13,8 +13,13 @@ export function mount(host, { store }) {
 
   let curCell = 1;          // 当前编辑的精灵编号
   let tool = 'pencil';      // pencil/eraser/pick/fill/line/rect
-  let color = 8;            // 当前前景色
+  let color = 8;            // 当前前景色（索引）
   let zoom = 14;
+
+  // 调色板：项目级设置，只影响渲染映射，不改像素索引数据
+  if (!PALETTES[store.project.palette]) store.project.palette = DEFAULT_PALETTE;
+  let palKey = store.project.palette;
+  let palColors = paletteColors(palKey);
 
   // 撤销栈：按精灵单元的 64 字节快照
   const undoStack = [];
@@ -43,13 +48,34 @@ export function mount(host, { store }) {
     }),
   );
 
-  const paletteEl = el('div', { class: 'palette' },
-    ...PALETTE.map((c, i) => {
-      const s = el('button', { class: 'swatch', 'data-c': i, style: `background:${c}`, title: `色 ${i}` });
-      scope.listen(s, 'click', () => setColor(i));
-      return s;
+  const palSelect = el('select', { class: 'palette-select' },
+    ...Object.entries(PALETTES).map(([k, p]) => {
+      const o = el('option', { value: k }, p.label);
+      return o;
     }),
   );
+  palSelect.value = palKey;
+  scope.listen(palSelect, 'change', () => {
+    palKey = palSelect.value;
+    store.project.palette = palKey;
+    palColors = paletteColors(palKey);
+    buildPalette();
+    render();
+    renderSheet();
+    store.touch();
+  });
+
+  const paletteEl = el('div', { class: 'palette' });
+  function buildPalette() {
+    paletteEl.innerHTML = '';
+    palColors.forEach((c, i) => {
+      const s = el('button', { class: 'swatch', 'data-c': i, style: `background:${c}`, title: `色 ${i}` });
+      scope.listen(s, 'click', () => setColor(i));
+      paletteEl.append(s);
+    });
+    if (color >= palColors.length) color = palColors.length - 1;
+    setColor(color);
+  }
 
   const btnUndo = el('button', { class: 'btn small' }, '↩ 撤销');
   const btnRedo = el('button', { class: 'btn small' }, '↪ 重做');
@@ -72,6 +98,7 @@ export function mount(host, { store }) {
       el('h3', {}, '工具'),
       toolRow,
       el('h3', {}, '调色板'),
+      palSelect,
       paletteEl,
       el('h3', {}, '精灵'),
       cellLabel,
@@ -122,7 +149,7 @@ export function mount(host, { store }) {
       for (let x = 0; x < CELL; x++) {
         const c = getPixel(sprites, ox + x, oy + y);
         if (c !== 0) {
-          ectx.fillStyle = PALETTE[c];
+          ectx.fillStyle = paletteColorAt(palKey, c);
           ectx.fillRect(x * zoom, y * zoom, zoom, zoom);
         }
       }
@@ -150,7 +177,7 @@ export function mount(host, { store }) {
       for (let x = 0; x < 128; x++) {
         const c = sprites[y * 128 + x];
         if (c !== 0) {
-          sctx.fillStyle = PALETTE[c];
+          sctx.fillStyle = paletteColorAt(palKey, c);
           sctx.fillRect(x, y, 1, 1);
         }
       }
@@ -232,7 +259,7 @@ export function mount(host, { store }) {
     render();
     const c = tool === 'eraser' ? 0 : color;
     const { x: ox, y: oy } = cellOrigin(curCell);
-    ectx.fillStyle = PALETTE[c];
+    ectx.fillStyle = paletteColorAt(palKey, c);
     for (const { x, y } of pts) ectx.fillRect(x * zoom, y * zoom, zoom, zoom);
     void ox; void oy;
   }
@@ -320,7 +347,7 @@ export function mount(host, { store }) {
   });
 
   setTool('pencil');
-  setColor(8);
+  buildPalette();
   fit();
   renderSheet();
 

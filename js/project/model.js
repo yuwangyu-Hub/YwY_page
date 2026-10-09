@@ -7,6 +7,7 @@ export function createEmptyProject() {
     code: '',
     sprites: createSprites(),
     map: createMap(),
+    palette: 'pico8', // 调色板键（见 lib/palette.js 的 PALETTES）
     sfx: null,   // 二期：音效库
     music: null, // 二期：乐曲库
   };

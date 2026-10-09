@@ -3,6 +3,7 @@
 // 导入为容错式：认识三个块，其余块（label/ quilt 等）跳过；官方 map 行宽 256 时取前 128。
 
 import { SHEET_W, SHEET_H, MAP_W, MAP_H } from '../lib/pixel-data.js';
+import { PALETTES, DEFAULT_PALETTE } from '../lib/palette.js';
 import { sfxToHex, sfxFromHex } from '../lib/sfx-data.js';
 import { patternToHex, patternFromHex } from '../lib/music-data.js';
 import { createEmptyProject } from './model.js';
@@ -13,6 +14,9 @@ export function serializeP8(project) {
   const out = [];
   out.push('pico-8 cartridge // http://www.pico-8.com');
   out.push('version 41');
+  // __palette__：本站自定块（官方卡带无此块，导入时回落 PICO-8）
+  out.push('__palette__');
+  out.push(PALETTES[project.palette] ? project.palette : DEFAULT_PALETTE);
   out.push('__lua__');
   out.push(project.code.endsWith('\n') || project.code === '' ? project.code : project.code + '\n');
 
@@ -56,7 +60,7 @@ export function deserializeP8(text) {
   const sections = {};
   let current = null;
   for (const line of String(text).split(/\r?\n/)) {
-    const m = line.match(/^__(lua|gfx|map|sfx|music|label|gff|quilt|history)__\s*$/);
+    const m = line.match(/^__(lua|gfx|map|sfx|music|palette|label|gff|quilt|history)__\s*$/);
     if (m) { current = m[1]; sections[current] = []; continue; }
     if (current && !line.startsWith('pico-8 cartridge') && !/^version \d+\s*$/.test(line)) {
       sections[current].push(line);
@@ -97,6 +101,12 @@ export function deserializeP8(text) {
       project.map[my * MAP_W + x] = v >= 0 ? v : 0;
     }
     my++;
+  }
+
+  // __palette__：单行键名；官方卡带无此块，保持默认
+  if (sections.palette && sections.palette.length) {
+    const key = sections.palette[0].trim();
+    if (PALETTES[key]) project.palette = key;
   }
 
   // __sfx__：`L0 S<speed> <hex…>`；官方纯 hex 行不匹配前缀，自动跳过

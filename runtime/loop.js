@@ -1,7 +1,8 @@
 // 运行时主循环：30fps、_init/_update/_draw 调度、单帧指令预算防死循环、
 // 屏幕呈现（palette 索引 → ImageData，一次 putImageData + overlay 叠加）。
 
-import { createLuaState, loadFengari, RGB } from './api.js';
+import { createLuaState, loadFengari } from './api.js';
+import { paletteRgb } from '../js/lib/palette.js';
 import { PRELUDE } from './prelude.lua.js';
 import { desugarP8 } from './desugar.js';
 import { stopMusic } from '../js/audio/engine.js';
@@ -17,6 +18,7 @@ export async function startRuntime({ project, canvas, overlay, keys, onError, on
   const ctx = canvas.getContext('2d');
   const octx = overlay.getContext('2d');
   const screen = new Uint8Array(W * H);
+  const RGB = paletteRgb(project.palette); // 项目调色板 → RGB
   const t0 = performance.now();
 
   let L;
@@ -57,7 +59,7 @@ export async function startRuntime({ project, canvas, overlay, keys, onError, on
   const data = img.data;
   function present() {
     for (let i = 0; i < W * H; i++) {
-      const [r, g, b] = RGB[screen[i]];
+      const [r, g, b] = RGB[screen[i] % RGB.length]; // 小色板（GB 4 色）取模
       const o = i * 4;
       data[o] = r; data[o + 1] = g; data[o + 2] = b; data[o + 3] = 255;
     }

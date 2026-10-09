@@ -7,7 +7,7 @@ import { createDemoProject } from './project/demo.js';
 import { createEmptyProject } from './project/model.js';
 import { serializeP8, deserializeP8, looksLikeP8 } from './project/serializer.js';
 import { downloadText, downloadCanvas, pickTextFile } from './project/download.js';
-import { PALETTE } from './lib/palette.js';
+import { paletteColorAt } from './lib/palette.js';
 
 // ---------- store ----------
 const saved = loadProject();
@@ -51,7 +51,7 @@ function exportPng() {
   for (let y = 0; y < 128; y++) {
     for (let x = 0; x < 128; x++) {
       const c = sprites[y * 128 + x];
-      if (c !== 0) { ctx.fillStyle = PALETTE[c]; ctx.fillRect(x, y, 1, 1); }
+      if (c !== 0) { ctx.fillStyle = paletteColorAt(store.project.palette, c); ctx.fillRect(x, y, 1, 1); }
     }
   }
   downloadCanvas('spritesheet.png', canvas);

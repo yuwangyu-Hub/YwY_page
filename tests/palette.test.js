@@ -1,0 +1,51 @@
+// 调色板注册表与映射 测试
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { PALETTES, DEFAULT_PALETTE, paletteColors, paletteColorAt, paletteRgb, PALETTE } from '../js/lib/palette.js';
+import { serializeP8, deserializeP8 } from '../js/project/serializer.js';
+
+test('注册五个色板且颜色均为合法 hex', () => {
+  const keys = Object.keys(PALETTES);
+  for (const k of ['pico8', 'tic80', 'gb', 'gbc', 'c64']) {
+    assert.ok(keys.includes(k), `缺少色板 ${k}`);
+    for (const c of PALETTES[k].colors) assert.match(c, /^#[0-9a-fA-F]{6}$/);
+  }
+});
+
+test('各色板颜色数为 16 或 4（GB）', () => {
+  assert.equal(PALETTES.pico8.colors.length, 16);
+  assert.equal(PALETTES.tic80.colors.length, 16);
+  assert.equal(PALETTES.gb.colors.length, 4);
+  assert.equal(PALETTES.gbc.colors.length, 16);
+  assert.equal(PALETTES.c64.colors.length, 16);
+});
+
+test('paletteColorAt 小色板取模，0-15 全有定义', () => {
+  for (let i = 0; i < 16; i++) {
+    assert.match(paletteColorAt('gb', i), /^#/);
+  }
+  // GB 4 色取模：索引 4 回到色 0
+  assert.equal(paletteColorAt('gb', 4), paletteColorAt('gb', 0));
+  assert.equal(paletteColorAt('gb', 5), paletteColorAt('gb', 1));
+  // 未知色板回落 PICO-8
+  assert.equal(paletteColorAt('不存在', 3), PALETTE[3]);
+  assert.equal(paletteColors('不存在'), PALETTE);
+});
+
+test('paletteRgb 输出 [r,g,b] 数值', () => {
+  const rgb = paletteRgb('pico8');
+  assert.equal(rgb.length, 16);
+  assert.deepEqual(rgb[0], [0, 0, 0]);
+  const rgbGb = paletteRgb('gb');
+  assert.equal(rgbGb.length, 4);
+  assert.deepEqual(rgbGb[0], [0x0f, 0x38, 0x0f]);
+});
+
+test('palette 字段随 .wy 序列化往返', () => {
+  const p = { version: 1, code: '', sprites: new Uint8Array(128 * 128), map: new Uint8Array(128 * 64), palette: 'gb', sfx: null, music: null };
+  const back = deserializeP8(serializeP8(p));
+  assert.equal(back.palette, 'gb');
+  // 官方卡带（无 __palette__ 块）回落 pico8
+  const plain = 'pico-8 cartridge\nversion 41\n__lua__\n\n__gfx__\n' + '0'.repeat(128) + '\n'.repeat(127) + '__map__\n';
+  assert.equal(deserializeP8(plain).palette, DEFAULT_PALETTE);
+});

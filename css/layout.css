@@ -1,0 +1,6 @@
+/* 布局：应用外壳（顶栏 + tab + 视图区） */
+#app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}

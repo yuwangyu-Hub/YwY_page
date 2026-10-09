@@ -1,0 +1,178 @@
+/* 共享组件：按钮 / 工具条 / 面板 / toast / 调色板色块 */
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+  white-space: nowrap;
+}
+.btn:hover { background: #2a2a3c; border-color: var(--accent); }
+.btn.primary {
+  background: var(--grad);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 600;
+}
+.btn.primary:hover { filter: brightness(1.15); }
+.btn.danger { color: var(--danger); border-color: var(--danger); }
+.btn.danger:hover { background: rgba(255, 0, 77, .12); }
+.btn.small { padding: 3px 10px; font-size: 12px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.btn-group { display: flex; gap: var(--sp-2); align-items: center; flex-wrap: wrap; }
+
+.panel {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+}
+
+/* 工具按钮（编辑器左侧竖排 / 横排） */
+.tool-btn {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+.tool-btn:hover { border-color: var(--accent); color: var(--text); }
+.tool-btn.active {
+  background: var(--grad);
+  border-color: transparent;
+  color: #fff;
+}
+
+/* 调色板 */
+.palette {
+  display: grid;
+  grid-template-columns: repeat(8, 22px);
+  gap: 4px;
+}
+.palette .swatch {
+  width: 22px; height: 22px;
+  border-radius: 3px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+.palette .swatch.active { border-color: #fff; box-shadow: 0 0 0 1px var(--bg), 0 0 6px rgba(255,255,255,.5); }
+.palette .swatch[data-c="0"] {
+  background-image: linear-gradient(135deg, #333 48%, #e33 52%);
+}
+
+/* toast */
+#toast-root {
+  position: fixed;
+  top: 60px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  animation: toast-in .2s ease-out;
+  box-shadow: 0 4px 16px rgba(0,0,0,.5);
+}
+.toast.error { border-left-color: var(--danger); }
+.toast.ok { border-left-color: var(--ok); }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* 顶栏 */
+.topbar {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: 0 var(--sp-4);
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+}
+.topbar .logo {
+  font-weight: 700;
+  font-size: 15px;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  white-space: nowrap;
+}
+.topbar-hint {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.flex-spacer { flex: 1; }
+.tabbar button i {
+  font-style: normal;
+  font-size: 10px;
+  opacity: .55;
+  margin-left: 2px;
+}
+.tabbar button:disabled { opacity: .4; cursor: not-allowed; }
+@media (max-width: 720px) {
+  .topbar-hint { display: none; }
+}
+
+/* tab 栏 */
+.tabbar {
+  display: flex;
+  gap: 2px;
+  padding: 0 var(--sp-3);
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.tabbar button {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  padding: 9px 16px;
+  font-size: 13px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tabbar button:hover { color: var(--text); }
+.tabbar button.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+/* 视图容器 */
+#view {
+  position: absolute;
+  top: 82px; left: 0; right: 0; bottom: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .topbar { padding: 0 var(--sp-3); gap: var(--sp-2); }
+  #view { top: 76px; }
+}

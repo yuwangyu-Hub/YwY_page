@@ -1,0 +1,58 @@
+/* 地图视图 */
+.map-view {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+.map-canvas-wrap {
+  flex: 1;
+  overflow: auto;
+  padding: var(--sp-4);
+  background:
+    linear-gradient(45deg, #1a1a24 25%, transparent 25%, transparent 75%, #1a1a24 75%),
+    linear-gradient(45deg, #1a1a24 25%, transparent 25%, transparent 75%, #1a1a24 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
+}
+.map-canvas-wrap canvas { cursor: crosshair; border: 1px solid var(--border); }
+
+.map-side {
+  width: 260px;
+  padding: var(--sp-4);
+  border-left: 1px solid var(--border);
+  background: var(--bg-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  overflow-y: auto;
+}
+
+.map-side h3 {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.tile-picker {
+  border: 1px solid var(--border);
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.map-label { font-size: 12px; color: var(--text-dim); }
+.map-label b { color: var(--text); }
+
+@media (max-width: 900px) {
+  .map-view { flex-direction: column; }
+  .map-side {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .map-side h3 { width: 100%; }
+}

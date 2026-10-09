@@ -1,0 +1,10 @@
+{
+  "name": "pixel-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser-based pixel game development studio (code IDE / sprite editor / map editor / Lua runtime)",
+  "scripts": {
+    "test": "node --test tests/"
+  }
+}

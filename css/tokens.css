@@ -1,0 +1,37 @@
+/* 设计令牌：色板 / 间距 / 圆角 / 字号 / 断点 */
+:root {
+  /* 品牌色（沿用 Spritely 时期的视觉基因） */
+  --accent: #667eea;
+  --accent-2: #764ba2;
+  --grad: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+  /* 中性色 */
+  --bg: #0c0c0c;
+  --bg-2: #16161f;
+  --bg-3: #1e1e2a;
+  --border: #2a2a3a;
+  --text: #e8e8f0;
+  --text-dim: #9a9ab0;
+
+  --danger: #ff004d;
+  --ok: #00e436;
+
+  /* 间距 */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 24px; --sp-6: 32px;
+
+  --radius: 8px;
+  --radius-sm: 4px;
+
+  --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+
+  /* 像素调色板变量 */
+  --pal-0: #000000; --pal-1: #1D2B53; --pal-2: #7E2553; --pal-3: #008751;
+  --pal-4: #AB5236; --pal-5: #5F574F; --pal-6: #C2C3C7; --pal-7: #FFF1E8;
+  --pal-8: #FF004D; --pal-9: #FFA300; --pal-10: #FFEC27; --pal-11: #00E436;
+  --pal-12: #29ADFF; --pal-13: #83769C; --pal-14: #FF77A8; --pal-15: #FFCCAA;
+
+  /* 断点（供 JS 对照） */
+  --bp-1: 600px; --bp-2: 900px; --bp-3: 1200px;
+}

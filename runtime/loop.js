@@ -3,6 +3,7 @@
 
 import { createLuaState, loadFengari, RGB } from './api.js';
 import { PRELUDE } from './prelude.lua.js';
+import { desugarP8 } from './desugar.js';
 
 const W = 128, H = 128;
 const FRAME_MS = 1000 / 30;
@@ -98,7 +99,7 @@ export async function startRuntime({ project, canvas, overlay, keys, onError, on
   try {
     loadChunk(PRELUDE, '=prelude');
     if (project.code.trim() === '') throw new Error('没有代码：去「代码」页写点 Lua，或先载入 demo');
-    loadChunk(project.code, '=user code');
+    loadChunk(desugarP8(project.code), '=user code'); // PICO-8 复合赋值糖 → 标准 Lua
     // _init 存在则调用一次；探测 _update/_draw 是否定义
     lua.lua_getglobal(L, to_luastring('_init'));
     const hasInit = !lua.lua_isnil(L, -1);

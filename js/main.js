@@ -22,6 +22,11 @@ const tabs = makeTabManager({
 });
 tabs.setContext({ store, tabs }); // 视图 mount 时统一注入 store/tabs
 
+// tab 按钮点击接线（tabs.js 只负责高亮，切换动作在这里触发）
+for (const b of document.querySelectorAll('.tabbar [data-tab]')) {
+  b.addEventListener('click', () => tabs.switchTo(b.dataset.tab));
+}
+
 // ---------- 顶栏动作 ----------
 function downloadP8() {
   const name = 'pixel-studio.p8';
@@ -60,6 +65,14 @@ function newProject() {
   location.reload();
 }
 
+function loadDemo() {
+  if (!confirm('载入内置 Demo？当前内容将被覆盖（请先导出 .p8 保存）。')) return;
+  store.replaceProject(createDemoProject());
+  toast('已载入内置 Demo，正在刷新…', 'ok');
+  setTimeout(() => location.reload(), 500);
+}
+
+document.getElementById('btn-demo').addEventListener('click', loadDemo);
 document.getElementById('btn-export-p8').addEventListener('click', downloadP8);
 document.getElementById('btn-import').addEventListener('click', () => importP8().catch((e) => toast(e.message || '导入失败', 'error')));
 document.getElementById('btn-export-png').addEventListener('click', exportPng);

@@ -2,6 +2,7 @@
 import { startRuntime } from '../../runtime/loop.js';
 import { el, makeScope, clearNode } from '../core/dom.js';
 import { toast } from '../core/toast.js';
+import { createDemoProject } from '../project/demo.js';
 
 // PICO-8 键位：0← 1→ 2↑ 3↓ 4○(Z/C) 5✕(X/V)
 const KEYMAP = {
@@ -72,6 +73,25 @@ export function mount(host, params) {
 
   async function run() {
     if (runtime) runtime.stop();
+
+    // 空代码：直接在控制台区提供「载入 Demo」一键恢复
+    if (store.project.code.trim() === '') {
+      consoleEl.className = 'run-console';
+      consoleEl.innerHTML = '';
+      consoleEl.append(
+        '没有代码。', el('button', { class: 'btn small primary', style: 'margin:0 8px' }, '🎮 载入内置 Demo'),
+        '或去「代码」页写点 Lua',
+      );
+      const btnDemo = consoleEl.querySelector('button');
+      scope.listen(btnDemo, 'click', () => {
+        store.replaceProject(createDemoProject());
+        toast('已载入内置 Demo', 'ok');
+        run(); // store.project 已替换，直接重新运行
+      });
+      setRunning(false);
+      return;
+    }
+
     consoleEl.className = 'run-console';
     consoleEl.textContent = '启动中…';
     for (let i = 0; i < 6; i++) keys[i] = false;

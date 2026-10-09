@@ -24,7 +24,7 @@ export function getPixel(sprites, x, y) {
 }
 
 export function setPixel(sprites, x, y, c) {
-  c = Math.max(0, Math.min(15, c | 0));
+  c = Math.max(0, Math.min(31, c | 0));
   sprites[wrap(y, SHEET_H) * SHEET_W + wrap(x, SHEET_W)] = c;
 }
 
@@ -43,7 +43,7 @@ export function cellOrigin(n) {
 export function floodFill(sprites, x, y, c, rect) {
   x = wrap(Math.floor(x), SHEET_W);
   y = wrap(Math.floor(y), SHEET_H);
-  c &= 15;
+  c = Math.max(0, Math.min(31, c | 0));
   const x0 = rect ? rect.x : 0, y0 = rect ? rect.y : 0;
   const x1 = rect ? rect.x + rect.w - 1 : SHEET_W - 1;
   const y1 = rect ? rect.y + rect.h - 1 : SHEET_H - 1;

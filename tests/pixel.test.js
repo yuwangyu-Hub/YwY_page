@@ -19,10 +19,10 @@ test('坐标环绕（与 PICO-8 一致）', () => {
   assert.equal(getPixel(s, 127, 127), 7);
 });
 
-test('颜色被钳制到 0-15', () => {
+test('颜色被钳制到 0-31', () => {
   const s = createSprites();
   setPixel(s, 0, 0, 99);
-  assert.equal(getPixel(s, 0, 0), 15);
+  assert.equal(getPixel(s, 0, 0), 31);
   setPixel(s, 0, 0, -3);
   assert.equal(getPixel(s, 0, 0), 0); // 负数钳制为 0
 });

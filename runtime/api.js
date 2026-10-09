@@ -46,12 +46,12 @@ export function createLuaState({ project, screen, keys, printCtx, t0 }) {
   const colors = paletteColors(project.palette); // 项目调色板（小色板由调用方取模）
 
   reg('_cls', (L2) => {
-    screen.fill(opt(1, 0) & 15);
+    screen.fill(opt(1, 0) & 31);
     return 0;
   });
 
   reg('_pset', (L2) => {
-    const x = chk(1), y = chk(2), c = chk(3) & 15;
+    const x = chk(1), y = chk(2), c = chk(3) & 31;
     screen[wrap(y, H) * W + wrap(x, W)] = c;
     return 0;
   });
@@ -62,7 +62,7 @@ export function createLuaState({ project, screen, keys, printCtx, t0 }) {
   });
 
   reg('_rectfill', (L2) => {
-    const x0 = chk(1), y0 = chk(2), x1 = chk(3), y1 = chk(4), c = chk(5) & 15;
+    const x0 = chk(1), y0 = chk(2), x1 = chk(3), y1 = chk(4), c = chk(5) & 31;
     const ax = Math.max(0, Math.min(x0, x1)), bx = Math.min(127, Math.max(x0, x1));
     const ay = Math.max(0, Math.min(y0, y1)), by = Math.min(127, Math.max(y0, y1));
     for (let y = ay; y <= by; y++) {
@@ -77,7 +77,7 @@ export function createLuaState({ project, screen, keys, printCtx, t0 }) {
   });
 
   reg('_sset', (L2) => {
-    sprites[wrap(chk(2), H) * W + wrap(chk(1), W)] = chk(3) & 15;
+    sprites[wrap(chk(2), H) * W + wrap(chk(1), W)] = chk(3) & 31;
     return 0;
   });
 
@@ -142,7 +142,7 @@ export function createLuaState({ project, screen, keys, printCtx, t0 }) {
   // 文本画在 overlay canvas 上（矢量字），present 时叠加到像素画面
   reg('_print', (L2) => {
     const s = lua.lua_tojsstring ? lua.lua_tojsstring(L2, 1) : '';
-    const x = chk(2), y = chk(3), c = chk(4) & 15;
+    const x = chk(2), y = chk(3), c = chk(4) & 31;
     if (printCtx) {
       printCtx.fillStyle = colors[((c % colors.length) + colors.length) % colors.length];
       printCtx.font = '6px monospace';

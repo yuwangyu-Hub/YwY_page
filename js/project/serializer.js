@@ -18,13 +18,17 @@ export function serializeP8(project) {
   // __palette__：本站自定块（官方卡带无此块，导入时回落 PICO-8）
   out.push('__palette__');
   out.push(PALETTES[project.palette] ? project.palette : DEFAULT_PALETTE);
-  // __pages__：本站自定的扩展精灵页（页 0 已在 __gfx__；P1 起为 base64）
+  // __pages__：本站自定的扩展精灵页（P0 仅在页 0 含 ≥16 高位色时写出，base64 无损；
+  // P1 起为扩展页）
   const pages = Array.isArray(project.spritePages) && project.spritePages.length
     ? project.spritePages.slice(0, MAX_PAGES)
     : [project.sprites];
-  if (pages.length > 1) {
+  const hasHiColor = pages.some((p) => p.some((v) => v > 15));
+  if (hasHiColor || pages.length > 1) {
     out.push('__pages__');
-    pages.forEach((p, i) => { if (i > 0) out.push(`P${i} ${bytesToBase64(p)}`); });
+    pages.forEach((p, i) => {
+      if (i > 0 || hasHiColor) out.push(`P${i} ${bytesToBase64(p)}`);
+    });
   }
 
   out.push('__lua__');
@@ -113,21 +117,29 @@ export function deserializeP8(text) {
     my++;
   }
 
-  // __pages__：`P<n> <base64>`（n≥1），与 __gfx__（页 0）合成完整页组
+  // __pages__：`P<n> <base64>`（n≥0）。P0 存在时覆盖 __gfx__（承载 ≥16 的高位色，无损）；
+  // P1 起与 __gfx__（页 0）合成完整页组
   const pageLines = (sections.pages || []).map((l) => l.trim()).filter((l) => /^P\d+ [A-Za-z0-9+/=]+$/.test(l));
   if (pageLines.length) {
-    const nums = pageLines.map((l) => parseInt(l.slice(1), 10)).sort((a, b) => a - b);
-    const max = Math.min(nums[nums.length - 1], MAX_PAGES - 1);
-    if (max >= 1) {
-      project.spritePages = [project.sprites];
-      const byNum = {};
-      for (const l of pageLines) {
-        const m = l.match(/^P(\d+) ([A-Za-z0-9+/=]+)$/);
-        byNum[parseInt(m[1], 10)] = m[2];
-      }
-      for (let i = 1; i <= max; i++) {
-        const b = byNum[i] ? base64ToBytes(byNum[i]) : null;
-        project.spritePages.push(b && b.length === 16384 ? b : new Uint8Array(16384));
+    const byNum = {};
+    for (const l of pageLines) {
+      const m = l.match(/^P(\d+) ([A-Za-z0-9+/=]+)$/);
+      byNum[parseInt(m[1], 10)] = m[2];
+    }
+    // P0：无损页 0
+    if (byNum[0]) {
+      const b0 = base64ToBytes(byNum[0]);
+      if (b0 && b0.length === 16384) project.sprites.set(b0);
+    }
+    const nums = Object.keys(byNum).map(Number).filter((n) => n >= 1).sort((a, b) => a - b);
+    if (nums.length) {
+      const max = Math.min(nums[nums.length - 1], MAX_PAGES - 1);
+      if (max >= 1) {
+        project.spritePages = [project.sprites];
+        for (let i = 1; i <= max; i++) {
+          const b = byNum[i] ? base64ToBytes(byNum[i]) : null;
+          project.spritePages.push(b && b.length === 16384 ? b : new Uint8Array(16384));
+        }
       }
     }
   }

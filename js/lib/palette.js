@@ -1,6 +1,9 @@
 // 调色板注册表（纯数据，无 DOM 依赖，可 Node 直测）。
-// 像素数据始终存 0-15 的索引；小色板（如 GB 4 色）按索引取模映射，
-// 这样切换色板只改渲染观感，不改底层数据，.wy 导入导出完全兼容。
+// 像素数据存 0-31 的索引；色板可定义最多 32 色（MAX_COLORS），
+// 少于 32 色的色板按索引取模映射（小色板如 GB 4 色循环使用）。
+// 切换色板只改渲染观感，不改底层数据。
+
+export const MAX_COLORS = 32;
 
 export const PALETTES = {
   pico8: {
@@ -10,6 +13,11 @@ export const PALETTES = {
       '#AB5236', '#5F574F', '#C2C3C7', '#FFF1E8',
       '#FF004D', '#FFA300', '#FFEC27', '#00E436',
       '#29ADFF', '#83769C', '#FF77A8', '#FFCCAA',
+      // PICO-8 隐藏色板（secret palette，pal(_,1) 可访问的 16 色）
+      '#291814', '#111D35', '#422136', '#125359',
+      '#742F29', '#49333B', '#A28879', '#F3EF7D',
+      '#BE1250', '#FF6C24', '#A8E72E', '#00B543',
+      '#065AB5', '#754665', '#FF6E59', '#FF9D81',
     ],
   },
   // TIC-80 出厂默认色板与 PICO-8 相同，故采用其内置的招牌替代色板 Sweetie-16
@@ -56,7 +64,7 @@ export function paletteColors(key) {
   return (PALETTES[key] || PALETTES.pico8).colors;
 }
 
-// 索引 → 颜色：小色板取模循环，保证 0-15 都有定义
+// 索引 → 颜色：少于 32 色的色板取模循环，保证 0-31 都有定义
 export function paletteColorAt(key, i) {
   const cs = paletteColors(key);
   return cs[((i % cs.length) + cs.length) % cs.length];

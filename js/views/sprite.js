@@ -136,7 +136,6 @@ export function mount(host, { store }) {
       cellLabel,
       sheet,
       el('div', { class: 'btn-group' }, btnUndo, btnRedo, btnClear),
-      el('div', { class: 'sprite-label' }, '提示：画完切到「运行」看效果；色 0 为透明。'),
       pageRow,
     ),
   );

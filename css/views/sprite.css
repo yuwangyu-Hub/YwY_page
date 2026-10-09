@@ -68,6 +68,15 @@
   letter-spacing: .08em;
 }
 
+/* 无标题侧栏：直接子区块之间留出呼吸感 */
+.sprite-side > .tool-row:not(:first-child),
+.sprite-side > .palette,
+.sprite-side > .sprite-label,
+.sprite-side > .btn-group,
+.sprite-side > .page-row {
+  margin-top: var(--sp-2);
+}
+
 .sheet-preview {
   border: 1px solid var(--border);
   cursor: pointer;

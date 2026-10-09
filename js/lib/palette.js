@@ -53,6 +53,16 @@ export const PALETTES = {
       '#6C6C6C', '#9AD284', '#6C5EB5', '#959595',
     ],
   },
+  // Apple II Lo-Res 16 色（IIGS 兼容模式 Mega II 芯片的 12-bit 官方色值）
+  apple2: {
+    label: 'Apple II',
+    colors: [
+      '#000000', '#DD0033', '#000099', '#DD22DD',
+      '#007722', '#555555', '#2222FF', '#66AAFF',
+      '#885500', '#FF6600', '#AAAAAA', '#FF9988',
+      '#11DD00', '#FFFF00', '#44FF99', '#FFFFFF',
+    ],
+  },
 };
 
 export const DEFAULT_PALETTE = 'pico8';

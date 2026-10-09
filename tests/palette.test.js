@@ -4,9 +4,9 @@ import assert from 'node:assert/strict';
 import { PALETTES, DEFAULT_PALETTE, paletteColors, paletteColorAt, paletteRgb, PALETTE } from '../js/lib/palette.js';
 import { serializeP8, deserializeP8 } from '../js/project/serializer.js';
 
-test('注册五个色板且颜色均为合法 hex', () => {
+test('注册六个色板且颜色均为合法 hex', () => {
   const keys = Object.keys(PALETTES);
-  for (const k of ['pico8', 'tic80', 'gb', 'gbc', 'c64']) {
+  for (const k of ['pico8', 'tic80', 'gb', 'gbc', 'c64', 'apple2']) {
     assert.ok(keys.includes(k), `缺少色板 ${k}`);
     for (const c of PALETTES[k].colors) assert.match(c, /^#[0-9a-fA-F]{6}$/);
   }
@@ -18,6 +18,7 @@ test('各色板颜色数：pico8 32 色（含隐藏色板），其余 16 或 4�
   assert.equal(PALETTES.gb.colors.length, 4);
   assert.equal(PALETTES.gbc.colors.length, 16);
   assert.equal(PALETTES.c64.colors.length, 16);
+  assert.equal(PALETTES.apple2.colors.length, 16);
   // 16-31 为 PICO-8 隐藏色板
   assert.equal(PALETTES.pico8.colors[16], '#291814');
   assert.equal(PALETTES.pico8.colors[31], '#FF9D81');

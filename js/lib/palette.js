@@ -63,6 +63,26 @@ export const PALETTES = {
       '#11DD00', '#FFFF00', '#44FF99', '#FFFFFF',
     ],
   },
+  // MSX1（TMS9918，gamma 校正值，比 MSX2 鲜艳；色 0 透明以黑表示）
+  msx1: {
+    label: 'MSX1',
+    colors: [
+      '#000000', '#000000', '#0AAD1E', '#34C84C',
+      '#2B2DE3', '#514BFB', '#BD2925', '#1EE2EF',
+      '#FB2C2B', '#FF5F4C', '#BDA22B', '#D7B454',
+      '#0A8C18', '#AF329A', '#B2B2B2', '#FFFFFF',
+    ],
+  },
+  // MSX2（V9938 出厂默认色板，色 0/1 均为黑）
+  msx2: {
+    label: 'MSX2',
+    colors: [
+      '#000000', '#000000', '#21C842', '#5EDC78',
+      '#5455EC', '#7D76FC', '#D4524D', '#42EBF5',
+      '#FC5554', '#FF7978', '#D4C154', '#E6CE80',
+      '#21B03B', '#C95BBA', '#CCCCCC', '#FFFFFF',
+    ],
+  },
 };
 
 export const DEFAULT_PALETTE = 'pico8';

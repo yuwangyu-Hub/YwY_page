@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spritely (本地版) - 视频转精灵图集工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Spritely <span class="badge">本地版</span></h1>
+        <p class="subtitle">AI 角色美术 → 动画精灵，本地免费、无限制使用</p>
+        <div class="banner">
+            💡 本地重构版：已移除登录 / 付费，所有功能免费无限使用。核心转换全部在浏览器内完成，不上传任何文件。
+        </div>
+    </header>
+
+    <!-- 工作流说明 -->
+    <section class="workflow">
+        <h3>🚀 使用流程</h3>
+        <ol>
+            <li>用你喜欢的 AI 生图工具生成角色素材（建议纯色背景，如绿幕）。</li>
+            <li>用 AI 视频工具把素材做成动画。</li>
+            <li>在下方上传视频 / 图片，Spritely 会引导你完成后续处理。</li>
+            <li>下载可直接用于游戏的精灵图集（Sprite Sheet）或逐帧 ZIP。</li>
+            <li>动画精灵已就绪，开搞！🎮</li>
+        </ol>
+        <p class="tip">💡 提示：也可以直接上传多张静态图（如游戏图标），本工具会自动对齐，保证尺寸一致。</p>
+    </section>
+
+    <!-- 上传 -->
+    <section class="card">
+        <h3>🎬 上传你的动画视频或图片</h3>
+        <div id="dropZone" class="dropzone">
+            <p>点击或拖拽文件到此处</p>
+            <p class="hint">支持 MP4 / WebM / MOV / PNG / JPG / WebP，可多选图片</p>
+            <input type="file" id="fileInput" accept="video/*,image/*" multiple hidden>
+        </div>
+        <button id="uploadBtn" class="btn primary">选择文件</button>
+        <p id="uploadInfo" class="info"></p>
+    </section>
+
+    <!-- 视频预览与设置 -->
+    <section class="card" id="settingsSection" style="display:none">
+        <h3>📹 视频预览与设置</h3>
+        <div class="preview-wrap">
+            <video id="videoEl" controls playsinline></video>
+        </div>
+        <div class="settings-grid">
+            <label>起始时间 (秒)
+                <input type="number" id="startFrame" value="0" min="0" step="0.01">
+            </label>
+            <label>结束时间 (秒)
+                <input type="number" id="endFrame" value="5" min="0" step="0.01">
+            </label>
+            <label>每隔 N 帧抽取 (1=全部)
+                <input type="number" id="extractEvery" value="1" min="1" step="1">
+            </label>
+            <label>导出 FPS
+                <input type="number" id="exportFps" value="30" min="1" step="1">
+            </label>
+        </div>
+        <p class="info" id="frameCountInfo"></p>
+        <button id="startProcessing" class="btn primary">🚀 开始抽取帧</button>
+        <div id="processingBar" class="progress" style="display:none">
+            <div id="processingFill" class="progress-fill"></div>
+            <span id="processingText">处理中… 0%</span>
+        </div>
+    </section>
+
+    <!-- 帧选择预览 -->
+    <section class="card" id="framesSection" style="display:none">
+        <h3>选择要导出的帧 <span id="frameSelCount" class="muted"></span></h3>
+        <div class="frame-toolbar">
+            <button id="selectAll" class="btn small">全选</button>
+            <button id="clearSel" class="btn small">清除选择</button>
+            <button id="playSelected" class="btn small">▶️ 播放所选</button>
+            <label class="inline">缩放
+                <input type="range" id="frameZoom" min="20" max="200" value="100">
+            </label>
+        </div>
+        <div id="frameGrid" class="frame-grid"></div>
+        <div id="animPreview" class="anim-preview" style="display:none">
+            <canvas id="animCanvas"></canvas>
+        </div>
+    </section>
+
+    <!-- Step 1 色键抠背景 -->
+    <section class="card" id="step1" style="display:none">
+        <h3>Step 1 🎨 色键抠背景 (Chroma Key)</h3>
+        <p class="desc">从画面中移除指定颜色（适合绿幕、蓝幕或纯色背景）。</p>
+        <div class="picker-wrap">
+            <canvas id="pickCanvas" class="picker-canvas" title="点击画面任意位置取色"></canvas>
+            <div class="picker-controls">
+                <div class="color-row">
+                    <span>目标颜色</span>
+                    <span id="targetSwatch" class="swatch"></span>
+                    <span id="targetRgb" class="muted"></span>
+                </div>
+                <button id="pickBtn" class="btn small">💧 取色 (点击左侧画面)</button>
+                <label>容差 Tolerance: <span id="tolVal">50</span>
+                    <input type="range" id="tolerance" min="0" max="150" value="50">
+                </label>
+                <p class="muted">精确 (0) ←→ 激进 (150)</p>
+                <button id="applyChroma" class="btn primary small">应用抠背景</button>
+                <button id="cancelChroma" class="btn small">❌ 取消抠背景</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Step 2 自动裁剪与定尺寸 -->
+    <section class="card" id="step2" style="display:none">
+        <h3>Step 2 📐 自动裁剪与定尺寸</h3>
+        <p class="desc">自动计算内容包围盒，保证所有帧尺寸一致。选择画布尺寸开始预览。</p>
+        <div class="crop-grid">
+            <div>
+                <label>裁剪模式
+                    <select id="cropMode">
+                        <option value="relative">动画相对 (首帧定位置)</option>
+                        <option value="center">居中裁剪</option>
+                        <option value="none">不裁剪 (仅缩放)</option>
+                    </select>
+                </label>
+                <div class="canvas-presets">
+                    <span>画布尺寸:</span>
+                    <div id="presetBtns" class="preset-btns"></div>
+                </div>
+                <label>手动尺寸 (px)
+                    <input type="number" id="manualSize" min="1" placeholder="如 256">
+                    <button id="setManual" class="btn small">设置</button>
+                </label>
+                <label>位置
+                    <select id="position">
+                        <option value="center">居中</option>
+                        <option value="top">上</option>
+                        <option value="bottom">下</option>
+                        <option value="left">左</option>
+                        <option value="right">右</option>
+                    </select>
+                </label>
+            </div>
+            <div class="preview-side">
+                <span class="muted">预览 (首帧)</span>
+                <canvas id="cropPreview" class="preview-canvas"></canvas>
+            </div>
+        </div>
+        <button id="applyCrop" class="btn primary small">应用裁剪 / 定尺寸</button>
+    </section>
+
+    <!-- Step 3 去光晕 -->
+    <section class="card" id="step3" style="display:none">
+        <h3>Step 3 ✨ 去光晕 (Halo Remover, 可选)</h3>
+        <p class="desc">通过扩展透明区域去除精灵边缘残留的光晕。建议在定尺寸之后使用。</p>
+        <label>扩展量 Expansion: <span id="expandVal">2</span> px
+            <input type="range" id="expansion" min="1" max="30" value="2">
+        </label>
+        <p class="muted">💡 从 2–5px 开始，若仍有光晕再加大；超过 10px 处理更慢。</p>
+        <button id="applyHalo" class="btn primary small">✨ 应用去光晕</button>
+    </section>
+
+    <!-- 下载 -->
+    <section class="card" id="downloadSection" style="display:none">
+        <h3>📥 下载选项</h3>
+        <div class="download-grid">
+            <button id="downloadSheet" class="btn primary">🖼️ 下载精灵图集 (PNG)</button>
+            <button id="downloadZip" class="btn">📥 下载逐帧 ZIP</button>
+            <button id="processAnother" class="btn">🔄 重新处理</button>
+        </div>
+        <p class="info" id="downloadInfo"></p>
+    </section>
+
+    <footer>
+        <p>本地重构版 · 基于 spritely.gamemaker.academy 功能复刻 · 仅供学习使用</p>
+    </footer>
+</div>
+
+<script src="jszip.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

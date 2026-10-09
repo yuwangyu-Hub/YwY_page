@@ -58,8 +58,19 @@
 .palette {
   display: grid;
   grid-template-columns: repeat(8, 22px);
+  grid-auto-rows: 22px;
+  align-content: start;
   gap: 4px;
+  /* 固定为 32 色（4 行）的高度：4×22px + 3×4px 间距 = 100px，
+     切换色板时下方区块位置不动；色板超过 32 色时出现纵向滚动条 */
+  height: 100px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
 }
+.palette::-webkit-scrollbar { width: 8px; }
+.palette::-webkit-scrollbar-thumb { background: var(--border, #444); border-radius: 4px; }
+.palette::-webkit-scrollbar-track { background: transparent; }
 .palette .swatch {
   width: 22px; height: 22px;
   border-radius: 3px;

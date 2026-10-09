@@ -29,15 +29,15 @@ for (const b of document.querySelectorAll('.tabbar [data-tab]')) {
 
 // ---------- 顶栏动作 ----------
 function downloadCart() {
-  const name = 'pixel-studio.px8';
+  const name = 'pixel-studio.wy';
   downloadText(name, serializeP8(store.project), 'text/plain');
   toast('已导出 ' + name, 'ok');
 }
 
 async function importCart() {
-  const text = await pickTextFile('.px8,.p8,.txt,.lua');
+  const text = await pickTextFile('.wy,.px8,.p8,.txt,.lua');
   if (!text) return;
-  if (!looksLikeP8(text)) { toast('不是有效的卡带文件（.px8 / .p8）', 'error'); return; }
+  if (!looksLikeP8(text)) { toast('不是有效的卡带文件（.wy / .p8）', 'error'); return; }
   store.replaceProject(deserializeP8(text));
   toast('导入成功，正在刷新…', 'ok');
   setTimeout(() => location.reload(), 500);
@@ -59,14 +59,14 @@ function exportPng() {
 }
 
 function newProject() {
-  if (!confirm('新建空白项目？当前内容将丢失（请先导出 .px8 保存）。')) return;
+  if (!confirm('新建空白项目？当前内容将丢失（请先导出 .wy 保存）。')) return;
   store.replaceProject(createEmptyProject());
   location.hash = 'code';
   location.reload();
 }
 
 function loadDemo() {
-  if (!confirm('载入内置 Demo？当前内容将被覆盖（请先导出 .px8 保存）。')) return;
+  if (!confirm('载入内置 Demo？当前内容将被覆盖（请先导出 .wy 保存）。')) return;
   store.replaceProject(createDemoProject());
   toast('已载入内置 Demo，正在刷新…', 'ok');
   setTimeout(() => location.reload(), 500);

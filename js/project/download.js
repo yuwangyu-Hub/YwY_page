@@ -27,7 +27,7 @@ export function downloadCanvas(filename, canvas) {
 }
 
 // 弹文件选择框，读取为文本
-export function pickTextFile(accept = '.px8,.p8,.txt,.lua') {
+export function pickTextFile(accept = '.wy,.px8,.p8,.txt,.lua') {
   return new Promise((resolve, reject) => {
     const input = document.createElement('input');
     input.type = 'file';

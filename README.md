@@ -29,7 +29,7 @@
 - 所有数据存放在**浏览器 sessionStorage**：关闭标签页/浏览器即自动清空，不留痕迹。
 - 编辑过程防抖自动保存（300ms），刷新页面不丢失。
 - **长期保存请导出**：
-  - 💾 **导出 .px8** — 本站卡带格式（`__lua__` / `__gfx__` / `__map__` + `__sfx__` / `__music__` 自定块）。文本格式与 PICO-8 兼容，官方 PICO-8 可读取其中的精灵与地图；导入时同样兼容 `.p8` 文件。
+  - 💾 **导出 .wy** — 本站卡带格式（`__lua__` / `__gfx__` / `__map__` + `__sfx__` / `__music__` 自定块）。文本格式与 PICO-8 兼容，官方 PICO-8 可读取其中的精灵与地图；导入时同样兼容 `.px8` / `.p8` 文件。
   - 🖼 **导出 PNG** — 128×128 精灵表图片（色 0 透明）。
 
 ## 内置 Demo
@@ -63,7 +63,7 @@ js/core/            dom/store/tabs/toast（应用框架）
 js/lib/             palette/pixel-data/draw/sfx-data/music-data（纯函数，Node 可测）
 js/audio/           WebAudio 芯片音源 + 乐曲调度
 js/ui/              共享 tracker 步进网格
-js/project/         数据模型/存储/.px8 序列化/下载/demo
+js/project/         数据模型/存储/.wy 序列化/下载/demo
 js/views/           code/sprite/map/sfx/music/run 六视图
 runtime/            Lua 运行时（prelude + JS 原语 + 主循环 + 语法糖解糖）
 vendor/             第三方 UMD 库
@@ -72,6 +72,6 @@ legacy/             旧版 Spritely 复刻
 
 ## 路线图
 
-- **一期 ✅**：代码 / 像素画 / 地图 / 运行 四工作台 + .px8 导入导出（兼容 .p8）
+- **一期 ✅**：代码 / 像素画 / 地图 / 运行 四工作台 + .wy 导入导出（兼容 .px8/.p8）
 - **二期 ✅**：音效编辑器（独立合成器）+ 音乐编辑器（Pattern × 双声部 + 乐曲链），`sfx()` / `music()` 接入运行时
 - **三期**：作品分享（云端存档）、多人协作等（待定）

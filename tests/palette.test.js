@@ -19,6 +19,7 @@ test('各色板颜色数：pico8 32 色（含隐藏色板），其余 16 或 4�
   assert.equal(PALETTES.gbc.colors.length, 16);
   assert.equal(PALETTES.c64.colors.length, 16);
   assert.equal(PALETTES.apple2.colors.length, 16);
+  assert.equal(PALETTES.nes.colors.length, 32);
   // 16-31 为 PICO-8 隐藏色板
   assert.equal(PALETTES.pico8.colors[16], '#291814');
   assert.equal(PALETTES.pico8.colors[31], '#FF9D81');

@@ -135,14 +135,13 @@ export function mount(host, { store }) {
       el('h3', {}, '调色板'),
       palSelect,
       paletteEl,
-      el('h3', {}, '精灵页'),
-      pageRow,
       el('h3', {}, '精灵'),
       cellLabel,
       sheet,
-      el('h3', {}, '操作'),
       el('div', { class: 'btn-group' }, btnUndo, btnRedo, btnClear),
       el('div', { class: 'sprite-label' }, '提示：画完切到「运行」看效果；色 0 为透明。'),
+      el('h3', {}, '精灵页'),
+      pageRow,
     ),
   );
   clearNode(host);

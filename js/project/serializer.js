@@ -3,6 +3,8 @@
 // 导入为容错式：认识三个块，其余块（label/ quilt 等）跳过；官方 map 行宽 256 时取前 128。
 
 import { SHEET_W, SHEET_H, MAP_W, MAP_H } from '../lib/pixel-data.js';
+import { sfxToHex, sfxFromHex } from '../lib/sfx-data.js';
+import { patternToHex, patternFromHex } from '../lib/music-data.js';
 import { createEmptyProject } from './model.js';
 
 const HEX = '0123456789abcdef';
@@ -27,6 +29,24 @@ export function serializeP8(project) {
     for (let x = 0; x < MAP_W; x++) row += HEX[project.map[y * MAP_W + x] & 15];
     out.push(row);
   }
+
+  // __sfx__：本站自定格式（官方 PICO-8 的 __sfx__ 为纯 hex，导入时按前缀区分互不干扰）
+  if (Array.isArray(project.sfx) && project.sfx.length) {
+    out.push('__sfx__');
+    for (const s of project.sfx) {
+      out.push(`L0 S${s.speed || 120} ${sfxToHex(s)}`);
+    }
+  }
+
+  // __music__：链 + pattern 行
+  if (project.music && Array.isArray(project.music.patterns)) {
+    out.push('__music__');
+    out.push('C ' + (project.music.chain || []).join(' '));
+    project.music.patterns.forEach((pat, i) => {
+      out.push(`P${i} ${patternToHex(pat)}`);
+    });
+  }
+
   out.push('');
   return out.join('\n');
 }
@@ -77,6 +97,35 @@ export function deserializeP8(text) {
       project.map[my * MAP_W + x] = v >= 0 ? v : 0;
     }
     my++;
+  }
+
+  // __sfx__：`L0 S<speed> <hex…>`；官方纯 hex 行不匹配前缀，自动跳过
+  const sfxLines = (sections.sfx || []).map((l) => l.trim()).filter((l) => /^L\d S\d+ [0-9a-f]+$/.test(l));
+  if (sfxLines.length) {
+    project.sfx = sfxLines.map((l) => {
+      const m = l.match(/^L\d S(\d+) ([0-9a-f]+)$/);
+      return sfxFromHex(m[2], parseInt(m[1], 10) || 120);
+    });
+  }
+
+  // __music__：`C <链>` + `P<n> <hex…>`
+  const musicLines = (sections.music || []).map((l) => l.trim());
+  const chainLine = musicLines.find((l) => /^C [\d -]*\d/.test(l));
+  const patLines = musicLines.filter((l) => /^P\d+ [0-9a-f]+$/.test(l));
+  if (chainLine || patLines.length) {
+    const music = { speed: 140, chain: [0], patterns: [] };
+    if (chainLine) {
+      const chain = chainLine.slice(2).trim().split(/\s+/).map(Number).filter((n) => !Number.isNaN(n) && n >= 0);
+      if (chain.length) music.chain = chain;
+    }
+    for (const l of patLines) {
+      const m = l.match(/^P(\d+) ([0-9a-f]+)$/);
+      music.patterns[parseInt(m[1], 10)] = patternFromHex(m[2]);
+    }
+    for (let i = 0; i < music.patterns.length; i++) {
+      if (!music.patterns[i]) music.patterns[i] = patternFromHex('');
+    }
+    project.music = music;
   }
 
   return project;

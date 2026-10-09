@@ -4,16 +4,18 @@
 
 线上地址：<https://yuwangyu-hub.github.io/YwY_page/>
 
-## 四大工作台（一期）
+## 六大工作台
 
 | 模块 | 功能 |
 |------|------|
 | ⌨ 代码 | CodeMirror Lua 编辑器，`Ctrl/Cmd+Enter` 一键运行 |
 | 🎨 像素画 | 128×128 精灵表（256 个 8×8 精灵），铅笔/橡皮/取色/填充/直线/矩形 + 撤销重做 |
 | 🗺 地图 | 128×64 瓦片地图，瓦片直接从精灵表选取，左绘右擦 |
+| 🔊 音效 | 8 槽位 × 16 步 tracker：5 种波形（方/正弦/锯齿/三角/噪声）× 24 半音 × 8 级音量，即时试播 |
+| 🎵 音乐 | 4 Pattern × 2 声部（主旋律/贝斯）+ 乐曲链编排，整曲循环播放 |
 | ▶ 运行 | 128×128 逻辑屏幕，30fps，键盘 + 移动端虚拟按键，Lua 错误实时显示 |
 
-> 🔊 音效 / 🎵 音乐两个工作台计划二期推出（与 PICO-8 不同，二者相互独立、不强制绑定）。一期代码中已预留 `sfx()` / `music()` 静音占位，写的代码到二期可直接接上。
+> 音效与音乐**相互独立**（区别于 PICO-8 的强绑定）：音效是游戏里的一次性短促声音（`sfx(0)`），音乐是自己编排的循环曲（`music(0)` 播放 / `music(-1)` 停止）。
 
 ## Lua API（PICO-8 风格子集）
 
@@ -27,7 +29,7 @@
 - 所有数据存放在**浏览器 sessionStorage**：关闭标签页/浏览器即自动清空，不留痕迹。
 - 编辑过程防抖自动保存（300ms），刷新页面不丢失。
 - **长期保存请导出**：
-  - 💾 **导出 .p8** — PICO-8 兼容文本卡带（`__lua__` / `__gfx__` / `__map__` 三个块，可直接被官方 PICO-8 读取精灵与地图；导入同样支持）。
+  - 💾 **导出 .p8** — PICO-8 兼容文本卡带（`__lua__` / `__gfx__` / `__map__` + 二期新增 `__sfx__` / `__music__` 自定格式块；官方 PICO-8 可读取精灵与地图，音频块为本站私有格式）。
   - 🖼 **导出 PNG** — 128×128 精灵表图片（色 0 透明）。
 
 ## 内置 Demo
@@ -58,16 +60,18 @@ python3 -m http.server 8080
 index.html          入口（顶栏 + tab 栏 + 视图容器）
 js/main.js          启动接线
 js/core/            dom/store/tabs/toast（应用框架）
-js/lib/             palette/pixel-data/draw（纯函数，Node 可测）
+js/lib/             palette/pixel-data/draw/sfx-data/music-data（纯函数，Node 可测）
+js/audio/           WebAudio 芯片音源 + 乐曲调度
+js/ui/              共享 tracker 步进网格
 js/project/         数据模型/存储/.p8 序列化/下载/demo
-js/views/           code/sprite/map/run 四视图
-runtime/            Lua 运行时（prelude + JS 原语 + 主循环）
+js/views/           code/sprite/map/sfx/music/run 六视图
+runtime/            Lua 运行时（prelude + JS 原语 + 主循环 + 语法糖解糖）
 vendor/             第三方 UMD 库
 legacy/             旧版 Spritely 复刻
 ```
 
 ## 路线图
 
-- **一期（当前）**：代码 / 像素画 / 地图 / 运行 四工作台 + .p8 导入导出
-- **二期**：音效编辑器（独立于音乐的合成器）+ 音乐编辑器（音序器），`__sfx__` / `__music__` 卡带块
+- **一期 ✅**：代码 / 像素画 / 地图 / 运行 四工作台 + .p8 导入导出
+- **二期 ✅**：音效编辑器（独立合成器）+ 音乐编辑器（Pattern × 双声部 + 乐曲链），`sfx()` / `music()` 接入运行时
 - **三期**：作品分享（云端存档）、多人协作等（待定）

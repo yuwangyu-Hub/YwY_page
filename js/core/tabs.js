@@ -2,12 +2,14 @@
 // 每个视图定义：{ mount(host, ctx), unmount() }，mount 可返回对象（含 unmount）。
 // 动态 import() 实现视图级代码分割。
 
-const VALID = new Set(['code', 'sprite', 'map', 'run']);
+const VALID = new Set(['code', 'sprite', 'map', 'run', 'sfx', 'music']);
 const LOADERS = {
   code: () => import('../views/code.js'),
   sprite: () => import('../views/sprite.js'),
   map: () => import('../views/map.js'),
   run: () => import('../views/run.js'),
+  sfx: () => import('../views/sfx.js'),
+  music: () => import('../views/music.js'),
 };
 
 export function currentHash() {

@@ -4,6 +4,36 @@ import { serializeP8, deserializeP8 } from '../js/project/serializer.js';
 import { createEmptyProject } from '../js/project/model.js';
 import { setPixel, setTile, getPixel, getTile } from '../js/lib/pixel-data.js';
 import { bytesToBase64, base64ToBytes } from '../js/project/storage.js';
+import { createJumpSfx, createCoinSfx } from '../js/lib/sfx-data.js';
+import { createBlankMusic } from '../js/lib/music-data.js';
+
+test('.p8 往返：sfx/music 块完整还原', () => {
+  const p = createEmptyProject();
+  p.code = 'x=1\n';
+  const jump = createJumpSfx(); jump.speed = 88;
+  p.sfx = [jump, createCoinSfx()];
+  const music = createBlankMusic();
+  music.patterns[0][0][0] = { p: 7, w: 2, v: 5 };
+  music.chain = [0, 1, 0];
+  p.music = music;
+
+  const text = serializeP8(p);
+  const q = deserializeP8(text);
+
+  assert.deepEqual(q.sfx[0].steps, jump.steps);
+  assert.equal(q.sfx[0].speed, 88);
+  assert.deepEqual(q.sfx[1].steps, p.sfx[1].steps);
+  assert.deepEqual(q.music.chain, [0, 1, 0]);
+  assert.deepEqual(q.music.patterns[0][0][0], { p: 7, w: 2, v: 5 });
+});
+
+test('.p8 兼容：无 sfx/music 的卡带解析后两者为 null', () => {
+  const p = createEmptyProject();
+  p.code = 'x=1\n';
+  const q = deserializeP8(serializeP8(p));
+  assert.equal(q.sfx, null);
+  assert.equal(q.music, null);
+});
 
 test('.p8 往返：code/sprites/map 完整还原', () => {
   const p = createEmptyProject();

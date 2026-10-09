@@ -18,7 +18,7 @@ if (!saved) toast('已载入内置 Demo · 数据存于本页会话，关闭浏�
 const tabs = makeTabManager({
   barEl: document.querySelector('.tabbar'),
   containerEl: document.getElementById('view'),
-  defs: { code: {}, sprite: {}, map: {}, run: {} },
+  defs: { code: {}, sprite: {}, map: {}, run: {}, sfx: {}, music: {} },
 });
 tabs.setContext({ store, tabs }); // 视图 mount 时统一注入 store/tabs
 

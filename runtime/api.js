@@ -4,6 +4,7 @@
 // _mget/_mset/_mapdraw/_btn/_print/_time/_sfx/_music
 
 import { PALETTE } from '../js/lib/palette.js';
+import { playSfx, startMusic, stopMusic } from '../js/audio/engine.js';
 
 // 预解析调色板为 RGB 字节
 const RGB = PALETTE.map((hex) => [
@@ -155,8 +156,20 @@ export function createLuaState({ project, screen, keys, printCtx, t0 }) {
     return 1;
   });
 
-  reg('_sfx', () => 0);   // 一期静音占位
-  reg('_music', () => 0); // 一期静音占位
+  // 音频：n 为槽位下标；music(n<0) 停止
+  reg('_sfx', (L2) => {
+    const n = chk(1);
+    const s = project.sfx && project.sfx[n];
+    if (s) { try { playSfx(s); } catch { /* 音频不可用时静默 */ } }
+    return 0;
+  });
+
+  reg('_music', (L2) => {
+    const n = opt(1, -1);
+    if (n < 0) { stopMusic(); }
+    else if (project.music) { try { startMusic(project.music); } catch { /* 同上 */ } }
+    return 0;
+  });
 
   return L;
 }

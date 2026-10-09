@@ -10,6 +10,8 @@ export function saveProject(project) {
       code: project.code,
       sprites: bytesToBase64(project.sprites),
       map: bytesToBase64(project.map),
+      sfx: project.sfx || null,   // 小对象，直接 JSON
+      music: project.music || null,
     };
     sessionStorage.setItem(KEY, JSON.stringify(data));
     return true;
@@ -28,7 +30,11 @@ export function loadProject() {
     const sprites = base64ToBytes(d.sprites);
     const map = base64ToBytes(d.map);
     if (!sprites || sprites.length !== 16384 || !map || map.length !== 8192) return null;
-    return { version: 1, code: d.code, sprites, map, sfx: null, music: null };
+    return {
+      version: 1, code: d.code, sprites, map,
+      sfx: d.sfx || null,
+      music: d.music || null,
+    };
   } catch (e) {
     console.warn('读取存档失败', e);
     return null;

@@ -3,6 +3,7 @@
 
 import { createEmptyProject } from './model.js';
 import { setPixel, setTile } from '../lib/pixel-data.js';
+import { createJumpSfx, createCoinSfx } from '../lib/sfx-data.js';
 
 // 色号速记
 const G = 11, DG = 3, BR = 4, PU = 2, GR = 5, DK = 1, RD = 8, WH = 7;
@@ -77,6 +78,9 @@ export function createDemoProject() {
   for (let x = 16; x <= 19; x++) setTile(project.map, x, 9, 3);
   for (let x = 24; x <= 27; x++) setTile(project.map, x, 11, 3);
 
+  // 音效：0 = 跳跃，1 = 彩蛋金币声（运行页按 X 试）
+  project.sfx = [createJumpSfx(), createCoinSfx()];
+
   project.code = DEMO_LUA;
   return project;
 }
@@ -97,6 +101,7 @@ function _update()
   if grounded and btnp(4) then
     vy=-3.8
     grounded=false
+    sfx(0)          -- 跳跃音效（音效页可改）
   end
 
   vy=min(vy+0.25,4)

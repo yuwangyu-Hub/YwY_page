@@ -1,0 +1,79 @@
+/* 音频双编辑器共用：音效 / 音乐 */
+
+.audio-view {
+  height: 100%;
+  display: flex;
+  gap: var(--sp-5);
+  padding: var(--sp-4);
+  overflow: auto;
+}
+.audio-side {
+  flex: 0 0 240px;
+  min-width: 220px;
+}
+.audio-side h3, .audio-main h3 {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin: var(--sp-4) 0 var(--sp-2);
+}
+.audio-side h3:first-child, .audio-main h3:first-child { margin-top: 0; }
+.audio-main { flex: 1; min-width: 0; }
+
+.slot-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.slot-btn {
+  min-width: 34px;
+  text-align: center;
+}
+.slot-btn.active {
+  background: var(--grad);
+  border-color: transparent;
+  color: #fff;
+}
+
+.speed-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.speed-slider { flex: 1; accent-color: var(--accent); }
+
+.step-grid {
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #15151f;
+  touch-action: none;
+}
+
+.chain-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  padding: 4px 6px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--sp-2);
+}
+.chain-item {
+  background: var(--bg-3);
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+@media (max-width: 800px) {
+  .audio-view { flex-direction: column; }
+  .audio-side { flex: none; width: 100%; }
+}

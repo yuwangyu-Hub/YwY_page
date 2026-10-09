@@ -4,6 +4,7 @@
 import { createLuaState, loadFengari, RGB } from './api.js';
 import { PRELUDE } from './prelude.lua.js';
 import { desugarP8 } from './desugar.js';
+import { stopMusic } from '../js/audio/engine.js';
 
 const W = 128, H = 128;
 const FRAME_MS = 1000 / 30;
@@ -92,6 +93,7 @@ export async function startRuntime({ project, canvas, overlay, keys, onError, on
     if (raf) cancelAnimationFrame(raf);
     raf = 0;
     lua.lua_sethook(L, () => {}, 0, 0);
+    stopMusic(); // 游戏停了，背景音乐也要停
   }
 
   // ---------- 启动 ----------

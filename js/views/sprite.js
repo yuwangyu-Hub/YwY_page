@@ -1,7 +1,8 @@
-// 像素画编辑器：精灵表 128×128（256 个 8×8 单元），六工具 + 16 色调色板 + 快照撤销。
+// 像素画编辑器：精灵表多页（每页 128×128 = 256 个 8×8 单元，最多 8 页），六工具 + 多色板 + 快照撤销。
 import { getPixel, setPixel, floodFill, cellIndex, cellOrigin } from '../lib/pixel-data.js';
 import { line as drawLine, rect as drawRect } from '../lib/draw.js';
 import { PALETTES, DEFAULT_PALETTE, paletteColors, paletteColorAt } from '../lib/palette.js';
+import { normalizePages, addPage as addSpritePage, MAX_PAGES } from '../project/model.js';
 import { el, makeScope, clearNode } from '../core/dom.js';
 import { toast } from '../core/toast.js';
 
@@ -9,7 +10,11 @@ const CELL = 8;
 
 export function mount(host, { store }) {
   const scope = makeScope();
-  const sprites = store.project.sprites;
+  normalizePages(store.project); // 旧存档兼容
+
+  const pages = store.project.spritePages;
+  let curPage = 0;
+  let sprites = pages[curPage]; // 当前页（绘制目标），切页时重绑
 
   let curCell = 1;          // 当前编辑的精灵编号
   let tool = 'pencil';      // pencil/eraser/pick/fill/line/rect
@@ -33,6 +38,36 @@ export function mount(host, { store }) {
   const sctx = sheet.getContext('2d');
 
   const cellLabel = el('span', { class: 'sprite-label' });
+
+  // ---------- 精灵页导航 ----------
+  const pageLabel = el('span', { class: 'sprite-label page-label' });
+  const btnPrevPage = el('button', { class: 'btn small', title: '上一页' }, '◀');
+  const btnNextPage = el('button', { class: 'btn small', title: '下一页' }, '▶');
+  const btnAddPage = el('button', { class: 'btn small', title: '追加一页 256 个空白精灵' }, '➕ 新增页');
+  scope.listen(btnPrevPage, 'click', () => gotoPage(curPage - 1));
+  scope.listen(btnNextPage, 'click', () => gotoPage(curPage + 1));
+  scope.listen(btnAddPage, 'click', () => {
+    if (!addSpritePage(store.project)) { toast('已达 8 页上限'); return; }
+    gotoPage(store.project.spritePages.length - 1);
+    toast('已新增精灵页', 'ok');
+  });
+  const pageRow = el('div', { class: 'tool-row page-row' }, btnPrevPage, pageLabel, btnNextPage, btnAddPage);
+
+  function updatePageUI() {
+    pageLabel.textContent = `页 ${curPage + 1}/${pages.length}`;
+    btnPrevPage.disabled = curPage === 0;
+    btnNextPage.disabled = curPage >= pages.length - 1;
+    btnAddPage.disabled = pages.length >= MAX_PAGES;
+  }
+  function gotoPage(i) {
+    if (i < 0 || i >= pages.length) return;
+    curPage = i;
+    sprites = pages[curPage];
+    undoStack.length = 0; redoStack.length = 0; // 撤销栈按单元快照，不跨页
+    updatePageUI();
+    render();
+    renderSheet();
+  }
 
   const tools = [
     ['pencil', '✏️', '铅笔'], ['eraser', '⌫', '橡皮'], ['pick', '💧', '取色'],
@@ -100,6 +135,8 @@ export function mount(host, { store }) {
       el('h3', {}, '调色板'),
       palSelect,
       paletteEl,
+      el('h3', {}, '精灵页'),
+      pageRow,
       el('h3', {}, '精灵'),
       cellLabel,
       sheet,
@@ -348,6 +385,7 @@ export function mount(host, { store }) {
 
   setTool('pencil');
   buildPalette();
+  updatePageUI();
   fit();
   renderSheet();
 

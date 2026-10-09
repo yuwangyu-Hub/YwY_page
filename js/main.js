@@ -44,16 +44,21 @@ async function importCart() {
 }
 
 function exportPng() {
+  const pages = Array.isArray(store.project.spritePages) && store.project.spritePages.length
+    ? store.project.spritePages
+    : [store.project.sprites];
   const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = 128;
+  canvas.width = 128;
+  canvas.height = 128 * pages.length; // 多页纵向拼接
   const ctx = canvas.getContext('2d');
-  const { sprites } = store.project;
-  for (let y = 0; y < 128; y++) {
-    for (let x = 0; x < 128; x++) {
-      const c = sprites[y * 128 + x];
-      if (c !== 0) { ctx.fillStyle = paletteColorAt(store.project.palette, c); ctx.fillRect(x, y, 1, 1); }
+  pages.forEach((page, pi) => {
+    for (let y = 0; y < 128; y++) {
+      for (let x = 0; x < 128; x++) {
+        const c = page[y * 128 + x];
+        if (c !== 0) { ctx.fillStyle = paletteColorAt(store.project.palette, c); ctx.fillRect(x, y + pi * 128, 1, 1); }
+      }
     }
-  }
+  });
   downloadCanvas('spritesheet.png', canvas);
   toast('已导出 spritesheet.png（色 0 为透明）', 'ok');
 }

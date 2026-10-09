@@ -1,14 +1,20 @@
 // sessionStorage 存取：关闭标签页/浏览器即清理（产品语义见 README）。
 // Uint8Array 编码为 base64 存储；总量 < 100KB，远低于 ~5MB 配额。
 
+import { MAX_PAGES } from './model.js';
+
 const KEY = 'pixel-studio.project.v1';
 
 export function saveProject(project) {
   try {
+    const pages = Array.isArray(project.spritePages) && project.spritePages.length
+      ? project.spritePages.slice(0, MAX_PAGES)
+      : [project.sprites];
     const data = {
       version: 1,
       code: project.code,
       sprites: bytesToBase64(project.sprites),
+      pages: pages.map(bytesToBase64), // 多精灵页（页 0 = sprites）
       map: bytesToBase64(project.map),
       sfx: project.sfx || null,   // 小对象，直接 JSON
       music: project.music || null,
@@ -31,8 +37,17 @@ export function loadProject() {
     const sprites = base64ToBytes(d.sprites);
     const map = base64ToBytes(d.map);
     if (!sprites || sprites.length !== 16384 || !map || map.length !== 8192) return null;
+    // 多页：优先 d.pages；旧存档单页回落
+    let spritePages;
+    if (Array.isArray(d.pages) && d.pages.length) {
+      spritePages = d.pages.slice(0, MAX_PAGES)
+        .map(base64ToBytes)
+        .filter((b) => b && b.length === 16384);
+    }
+    if (!spritePages || !spritePages.length) spritePages = [sprites];
+    spritePages[0] = sprites;
     return {
-      version: 1, code: d.code, sprites, map,
+      version: 1, code: d.code, sprites, spritePages, map,
       sfx: d.sfx || null,
       music: d.music || null,
       palette: typeof d.palette === 'string' ? d.palette : 'pico8',

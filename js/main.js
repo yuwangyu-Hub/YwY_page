@@ -20,6 +20,7 @@ const tabs = makeTabManager({
   containerEl: document.getElementById('view'),
   defs: { code: {}, sprite: {}, map: {}, run: {} },
 });
+tabs.setContext({ store, tabs }); // 视图 mount 时统一注入 store/tabs
 
 // ---------- 顶栏动作 ----------
 function downloadP8() {
@@ -64,5 +65,18 @@ document.getElementById('btn-import').addEventListener('click', () => importP8()
 document.getElementById('btn-export-png').addEventListener('click', exportPng);
 document.getElementById('btn-new').addEventListener('click', newProject);
 
+// ---------- 全局错误兜底（避免无声黑屏） ----------
+window.addEventListener('error', (e) => {
+  console.error(e.error || e.message);
+  toast('出错了: ' + (e.message || '未知错误'), 'error');
+});
+window.addEventListener('unhandledrejection', (e) => {
+  console.error(e.reason);
+  toast('出错了: ' + (e.reason?.message || e.reason || '未知错误'), 'error');
+});
+
 // ---------- 启动 ----------
-tabs.switchTo(currentHash());
+tabs.switchTo(currentHash()).catch((e) => {
+  document.getElementById('view').innerHTML =
+    `<div style="padding:24px;color:#f55;font-family:monospace">视图加载失败：${e.message}</div>`;
+});

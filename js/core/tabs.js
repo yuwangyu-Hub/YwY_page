@@ -18,6 +18,7 @@ export function currentHash() {
 export function makeTabManager({ barEl, containerEl, defs }) {
   let active = null;      // 当前视图名
   let instance = null;    // 当前视图实例（含 unmount）
+  let sharedCtx = {};     // 共享上下文（store/tabs），mount 时与 params 合并注入视图
 
   function buttons() {
     for (const name of Object.keys(defs)) {
@@ -40,7 +41,8 @@ export function makeTabManager({ barEl, containerEl, defs }) {
     if (currentHash() !== name) location.hash = name;
     buttons();
     const mod = await LOADERS[name]();
-    instance = mod.mount(containerEl, params) || {};
+    instance = mod.mount(containerEl, { ...sharedCtx, ...params }) || {};
+    if (!instance.unmount) console.warn(`视图 ${name} 未返回 unmount`);
   }
 
   window.addEventListener('hashchange', () => {
@@ -49,5 +51,9 @@ export function makeTabManager({ barEl, containerEl, defs }) {
   });
 
   buttons();
-  return { switchTo, get active() { return active; } };
+  return {
+    switchTo,
+    get active() { return active; },
+    setContext(ctx) { sharedCtx = ctx; },
+  };
 }

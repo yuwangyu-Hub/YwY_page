@@ -4,9 +4,9 @@ import assert from 'node:assert/strict';
 import { PALETTES, DEFAULT_PALETTE, paletteColors, paletteColorAt, paletteRgb, PALETTE } from '../js/lib/palette.js';
 import { serializeP8, deserializeP8 } from '../js/project/serializer.js';
 
-test('注册八个色板且颜色均为合法 hex', () => {
+test('注册十一个色板且颜色均为合法 hex', () => {
   const keys = Object.keys(PALETTES);
-  for (const k of ['pico8', 'tic80', 'gb', 'gbc', 'c64', 'apple2', 'msx1', 'msx2']) {
+  for (const k of ['pico8', 'tic80', 'gb', 'gbc', 'c64', 'apple2', 'msx1', 'msx2', 'sms', 'nes', 'zx']) {
     assert.ok(keys.includes(k), `缺少色板 ${k}`);
     for (const c of PALETTES[k].colors) assert.match(c, /^#[0-9a-fA-F]{6}$/);
   }

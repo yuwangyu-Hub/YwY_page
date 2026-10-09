@@ -83,6 +83,36 @@ export const PALETTES = {
       '#21B03B', '#C95BBA', '#CCCCCC', '#FFFFFF',
     ],
   },
+  // Sega Master System（Mode 4 标准 16 色：TMS9918 色在 00BBGGRR 6-bit 空间的官方近似）
+  sms: {
+    label: 'Master System',
+    colors: [
+      '#000000', '#000000', '#00AA00', '#00FF00',
+      '#000055', '#0000FF', '#550000', '#00FFFF',
+      '#AA0000', '#FF0000', '#555500', '#FFFF00',
+      '#005500', '#FF00FF', '#555555', '#FFFFFF',
+    ],
+  },
+  // NES（2C02 主色板通用 16 色子集，NTSC）
+  nes: {
+    label: 'NES',
+    colors: [
+      '#7C7C7C', '#0000FC', '#0000BC', '#4428BC',
+      '#940084', '#A82020', '#A81000', '#881400',
+      '#503000', '#007800', '#006800', '#005800',
+      '#004058', '#000000', '#BCBCBC', '#FCFCFC',
+    ],
+  },
+  // ZX Spectrum（15 色 + bright 变体：正常亮度 #D7 系 / 高亮 #FF 系）
+  zx: {
+    label: 'ZX Spectrum',
+    colors: [
+      '#000000', '#0000D7', '#D70000', '#D700D7',
+      '#00D700', '#00D7D7', '#D7D700', '#D7D7D7',
+      '#000000', '#0000FF', '#FF0000', '#FF00FF',
+      '#00FF00', '#00FFFF', '#FFFF00', '#FFFFFF',
+    ],
+  },
 };
 
 export const DEFAULT_PALETTE = 'pico8';
